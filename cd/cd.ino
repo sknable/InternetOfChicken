@@ -24,6 +24,7 @@
          |            [ ] [ ] [ ]              |
          |  UNO_R3    GND MOSI 5V  ____________/
           \_______________________/ */
+#include <avr/wdt.h>
 //Motor PINS
 const byte stdby = 10; //standby
 const byte ain1 = 9; //Direction
@@ -47,70 +48,23 @@ enum doorActionState {
   DOOR_IDLE,
   DOOR_OPENING,
   DOOR_CLOSEING,
+  DOOR_ERROR,
 };
 
 
-volatile byte doorInProgress = 0;
-volatile byte systemError = 1;
+volatile byte doorStatus = 0;
+volatile byte systemError = 0;
 volatile long lastDoorCommand = 0;
 volatile byte lastDoorAction = DOOR_IDLE;
 unsigned long lastLightCheck = 0;
-unsigned long lastErrorCorrection = 0;
 const unsigned long lightTogglePeriod = 260000;
-const unsigned long errorCorrectResetTime = 3600000;
 const byte dayTimeLight = 60;
 const byte nightTimeLight = 30;
 const unsigned long  startUpDelay = 60000;
-volatile byte errorAttempts = 0;
 
 
 #define ENABLE_DEBUG 1
 
-//Try to get out of error mode..Basically get the door to hit a reed switch and then system check will take care of the prober position
-void errorCorrection()
-{
-
-  if(errorAttempts == 0)
-  {
-    errorAttempts++;
-    lastErrorCorrection = millis();
-    Serial.println(F("errorCorrection::Error Correction Mode")); 
-    noInterrupts();
-  
-    if(lastDoorAction == DOOR_OPENING)
-    {
-  
-      //Close it all the way for now...no harm in doing this
-      CloseDoor();
-      delay(5000);
-      StopDoor();
-      ledError();
-  
-    }
-    else if(lastDoorAction == DOOR_CLOSEING)
-    {
-      //Makes me nervous of destroying door only try a little.
-      OpenDoor(); 
-      delay(1000);
-      StopDoor();
-      
-      //Did we get some where?
-      if(! isDoorClosed() && ! isDoorOpen())
-      {
-        CloseDoor();
-        delay(3000);
-        StopDoor();
-      }
-      
-      ledError();
-  
-    }
-  
-   
-    interrupts();
-  }
-    
-}
 //Monitor the Door
 byte systemCheck()
 {
@@ -127,17 +81,31 @@ byte systemCheck()
       {
         ledClosed();
       }
+
+      if(lastDoorAction != DOOR_ERROR) //We can reset and try to clear the error...only if the last action was not error
+      {
+        systemError = 0;
+      }
     }
     
-    systemError = 0;
-    Serial.println(F("systemCheck::Performing Normal System Checks")); 
-      
-    if(! isDoorOpen() && ! isDoorClosed())
+    
+    Serial.print(F("systemCheck::Performing Normal System Checks --")); 
+    Serial.print(F(" Door Top:"));
+    Serial.print(digitalRead(topDoor));
+    Serial.print(F(" Door Bottom:"));
+    Serial.print(digitalRead(bottomDoor));
+    Serial.print(F(" Light :"));
+    Serial.println(analogRead(lightSensor) / 4);
+
+    if(systemError) //Something is really wrong, user action is required
+    {
+        ledError();
+    }
+    else if(! isDoorOpen() && ! isDoorClosed())
     {
         //Where are the doors!!
         Serial.println(F("Error: We don't have contact")); 
         ledError();
-        systemError = 1;
         return 0;
     }
     else if(isDoorOpen()&& isDoorClosed())
@@ -145,7 +113,6 @@ byte systemCheck()
         //WTF
         Serial.println(F("Error: We have to many contacts")); 
         ledError();
-        systemError = 1;
         return 0;       
     }
     
@@ -170,21 +137,21 @@ byte systemCheck()
 }
 void loop()
 {
-        //Every 3 minuites check light level and act
-        if((millis() - lastLightCheck) >= lightTogglePeriod)
-        {
-            lastLightCheck = millis();
-            systemCheck();
-          //  errorCorrection
-        }
+    //Every 3 minuites check light level and act
+    if((millis() - lastLightCheck) >= lightTogglePeriod)
+    {
+        lastLightCheck = millis();
+        systemCheck();
+      //  errorCorrection
+    }
 
-        //Reset errorAttemtps to allow door to correct itself...once an hour for now.
-        if((millis() - lastErrorCorrection) >= errorCorrectResetTime)
-        {
-            errorAttempts = 0;
-        }
+    //Pet the dog
+    if(doorStatus == DOOR_IDLE || doorStatus == DOOR_ERROR)
+    {
+      wdt_reset();
+    }
+
         
-
   #ifdef ENABLE_DEBUG 
     debug();
   #endif
@@ -241,7 +208,7 @@ byte isDoorClosed()
 void userInput()
 {
 
-  if(doorInProgress == DOOR_IDLE)
+  if(doorStatus == DOOR_IDLE)
   {
     if(isDoorClosed())
     {
@@ -259,7 +226,7 @@ void OpenDoor()
     ledMovement();
     lastDoorAction = DOOR_OPENING;
     lastDoorCommand = millis();
-    doorInProgress = 1;
+    doorStatus = 1;
     move(255, 1);
 }
 void CloseDoor()
@@ -267,20 +234,20 @@ void CloseDoor()
     ledMovement();
     lastDoorAction = DOOR_CLOSEING;
     lastDoorCommand = millis();
-    doorInProgress = 2;
+    doorStatus = 2;
     move(255, 0);
 }
 void StopDoor()
 {
     lastDoorCommand = millis();
-    doorInProgress = 0;
+    doorStatus = 0;
     stop();
 }
 void StopDoorError()
 {
-    lastDoorAction = DOOR_OPENING;
+    lastDoorAction = DOOR_ERROR;
     lastDoorCommand = millis();
-    doorInProgress = 0;
+    doorStatus = 0;
     stop();
 }
 void ledOff()
@@ -291,6 +258,7 @@ void ledOff()
 }
 void ledError()
 {
+    systemError = 1;
     ledOff();
     analogWrite(redLed, 150);
     analogWrite(greenLed, 100);
@@ -356,25 +324,26 @@ ISR (PCINT1_vect) // handle pin change interrupt for A0 to A5 here
     Serial.print(F(" -- Bottom Door Interrupt: "));
     Serial.println(bottomDoorStatus);
 
-    if(doorInProgress == DOOR_OPENING && topDoorStatus)
+    if(doorStatus == DOOR_OPENING && topDoorStatus)
     {
         //Sometimes the reed triggers a little early...go up a Tad.
         delay(1000);
         StopDoor();
         ledOpen();
     }
-    else if(doorInProgress == DOOR_CLOSEING && bottomDoorStatus)
+    else if(doorStatus == DOOR_CLOSEING && bottomDoorStatus)
     {
         //Give extra slack to lock door
-        delay(6000);   
+        delay(7000);   
         StopDoor();
         ledClosed();
     }
-    else if(doorInProgress == DOOR_CLOSEING && topDoorStatus)
+    else if(doorStatus == DOOR_CLOSEING && topDoorStatus) //The door has start to open!!!!
     {
         StopDoorError();
         ledError();
     }
+
 }
 void setup()
 {
@@ -406,6 +375,9 @@ void setup()
   
     // turn on interrupts
     interrupts();
+
+    //Who let the dogs out?
+    wdt_enable(WDTO_4S);
 
     systemCheck();
     
