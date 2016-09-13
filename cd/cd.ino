@@ -51,6 +51,8 @@ enum doorActionState {
   DOOR_ERROR,
 };
 
+#define ENABLE_DEBUG 1
+const byte maxLightAverage = 5;
 
 volatile byte doorStatus = 0;
 volatile byte systemError = 0;
@@ -58,14 +60,15 @@ volatile long lastDoorCommand = 0;
 volatile byte lastDoorAction = DOOR_IDLE;
 unsigned long lastLightCheck = 0;
 const unsigned long lightTogglePeriod = 260000;
-const byte dayTimeLight = 60;
-const byte nightTimeLight = 30;
+const byte dayTimeLight = 50;
+const byte nightTimeLight = 40;
 const unsigned long  startUpDelay = 60000;
+volatile byte lightLevels[maxLightAverage] = {0,0,0,0,0};
+volatile byte lightLevelInc = 0;
 
 
-#define ENABLE_DEBUG 1
 
-//Monitor the Door
+//Monitor the Door runs in a loop
 byte systemCheck()
 {
 
@@ -95,7 +98,9 @@ byte systemCheck()
     Serial.print(F(" Door Bottom:"));
     Serial.print(digitalRead(bottomDoor));
     Serial.print(F(" Light :"));
-    Serial.println(analogRead(lightSensor) / 4);
+    Serial.print(analogRead(lightSensor) / 4);
+    Serial.print(F(" Light Average :"));
+    Serial.println(getLightLevel());
 
     if(systemError) //Something is really wrong, user action is required
     {
@@ -141,6 +146,7 @@ void loop()
     if((millis() - lastLightCheck) >= lightTogglePeriod)
     {
         lastLightCheck = millis();
+        recordLight();
         systemCheck();
       //  errorCorrection
     }
@@ -156,13 +162,43 @@ void loop()
     debug();
   #endif
 }
+void initLight()
+{
+    for(int i = 0; i < maxLightAverage; i++)
+  {
+    lightLevels[i]  = analogRead(lightSensor) / 4;
+  }
+}
+void recordLight()
+{
+
+  lightLevels[lightLevelInc] = analogRead(lightSensor) / 4;
+
+  if(lightLevelInc < 4)
+  {
+    lightLevelInc++;
+  }
+  else
+  {
+    lightLevelInc = 0;
+  }
+
+}
 byte getLightLevel()
 {
-    return analogRead(lightSensor);
+
+  int averageLight = 0;
+  
+  for(int i = 0; i < maxLightAverage; i++)
+  {
+    averageLight += lightLevels[i]; 
+  }
+
+  return averageLight / maxLightAverage;
 }
 byte isItDayTime()
 {
-    if(analogRead(lightSensor) / 4> dayTimeLight)
+    if(getLightLevel() > dayTimeLight)
     {
         return 1;
     }
@@ -171,7 +207,7 @@ byte isItDayTime()
 }
 byte isItNightTime()
 {
-    if(analogRead(lightSensor) / 4 < nightTimeLight)
+    if(getLightLevel() < nightTimeLight)
     {
         return 1;
     }
@@ -376,6 +412,7 @@ void setup()
     // turn on interrupts
     interrupts();
 
+    initLight();
     //Who let the dogs out?
     wdt_enable(WDTO_4S);
 
