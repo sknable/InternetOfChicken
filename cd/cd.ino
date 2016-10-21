@@ -60,7 +60,7 @@ volatile long lastDoorCommand = 0;
 volatile byte lastDoorAction = DOOR_IDLE;
 unsigned long lastLightCheck = 0;
 const unsigned long lightTogglePeriod = 260000;
-const byte dayTimeLight = 50;
+const byte dayTimeLight = 30;
 const byte nightTimeLight = 40;
 const unsigned long  startUpDelay = 60000;
 volatile byte lightLevels[maxLightAverage] = {0,0,0,0,0};
@@ -142,13 +142,14 @@ byte systemCheck()
 }
 void loop()
 {
+
+  
     //Every 3 minuites check light level and act
     if((millis() - lastLightCheck) >= lightTogglePeriod)
     {
         lastLightCheck = millis();
         recordLight();
         systemCheck();
-      //  errorCorrection
     }
 
     //Pet the dog
@@ -244,6 +245,7 @@ byte isDoorClosed()
 void userInput()
 {
 
+  Serial.print(F("manualControl"));
   if(doorStatus == DOOR_IDLE)
   {
     if(isDoorClosed())
@@ -363,13 +365,15 @@ ISR (PCINT1_vect) // handle pin change interrupt for A0 to A5 here
     if(doorStatus == DOOR_OPENING && topDoorStatus)
     {
         //Sometimes the reed triggers a little early...go up a Tad.
-        delay(1000);
+        wdt_reset();
+        delay(1500);
         StopDoor();
         ledOpen();
     }
     else if(doorStatus == DOOR_CLOSEING && bottomDoorStatus)
     {
         //Give extra slack to lock door
+        wdt_reset();
         delay(7000);   
         StopDoor();
         ledClosed();
@@ -414,7 +418,7 @@ void setup()
 
     initLight();
     //Who let the dogs out?
-    wdt_enable(WDTO_4S);
+    wdt_enable(WDTO_8S);
 
     systemCheck();
     
