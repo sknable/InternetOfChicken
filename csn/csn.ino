@@ -6,10 +6,7 @@
 #include <SPI.h>
 #include <SFE_CC3000.h>
 #include <SFE_CC3000_Client.h>
-// Progmem allows us to store big strings in flash using F().
-// We'll sacrifice some flash for extra DRAM space.
-#include <Progmem.h>
-
+#include <Wire.h>
 ////////////////////////////////////
 // CC3000 Shield Pins & Variables //
 ////////////////////////////////////
@@ -22,9 +19,9 @@
 ////////////////////
 // WiFi Constants //
 ////////////////////
-char ap_ssid[] = "NETWORK_ID";                // SSID of network
-char ap_password[] = "NETWORK_PASS";        // Password of network
-unsigned int ap_security = WLAN_SEC_UNSEC; // Security of network
+char ap_ssid[] = "";                // SSID of network
+char ap_password[] = "";        // Password of network
+unsigned int ap_security = WLAN_SEC_WPA2; // Security of network
 // ap_security can be any of: WLAN_SEC_UNSEC, WLAN_SEC_WEP, 
 //  WLAN_SEC_WPA, or WLAN_SEC_WPA2
 unsigned int timeout = 30000;             // Milliseconds
@@ -37,76 +34,34 @@ SFE_CC3000_Client client = SFE_CC3000_Client(wifi);
 /////////////////
 // Phant Stuff //
 /////////////////
-const String publicKey = "6JZbNolApzF4om2l9yYK";
-const String privateKey = "Ww0vPW1yrkUNDqWPV9jE";
-const byte NUM_FIELDS = 3;
-const String fieldNames[NUM_FIELDS] = {"light", "switch", "name"};
+//1aM5oQWMbGC8Kzx9Oba7
+const String publicKey = "VG6Wox56zbu17vwrRlzg";
+const String privateKey = "9Y1qGdz19BhqPdWzg9Mb";
+const byte NUM_FIELDS = 2;
+const String fieldNames[NUM_FIELDS] = {"humidity", "temp"};
 String fieldData[NUM_FIELDS];
-
-//////////////////////
-// Input Pins, Misc //
-//////////////////////
-const int triggerPin = 3;
-const int lightPin = A0;
-const int switchPin = 5;
-String name = "Anonymouse";
-boolean newName = true;
 
 void setup()
 {
-  Serial.begin(115200);
-
-  // Setup Input Pins:
-  pinMode(triggerPin, INPUT_PULLUP);
-  pinMode(switchPin, INPUT_PULLUP);
-  pinMode(lightPin, INPUT_PULLUP);
-
+  Serial.begin(9600);
+  Wire.begin();        // join i2c bus (address optional for master)
   // Set Up WiFi:
   setupWiFi();
 
-  Serial.println(F("=========== Ready to Stream ==========="));
-  Serial.println(F("Press the button (D3) to send an update"));
-  Serial.println(F("Type your name, followed by '!' to update name"));
 }
 
 void loop()
 {
-  // If the trigger pin (3) goes low, send the data.
-  if (!digitalRead(triggerPin))
-  {
-    // Gather data:
-    fieldData[0] = String(analogRead(lightPin));
-    fieldData[1] = String(digitalRead(switchPin));
-    fieldData[2] = name;
+  Wire.requestFrom(8, 4);    // request 6 bytes from slave device #8
 
-    // Post data:
-    Serial.println("Posting!");
-    postData(); // the postData() function does all the work, 
-                // check it out below.
-    delay(1000);
+  while (Wire.available()) { // slave may send less than requested
+    char c = Wire.read(); // receive a byte as character
+    Serial.print(c);         // print the character
   }
+  Serial.println("");
+  delay(2500);
 
-  // Check for a new name input:
-  if (Serial.available())
-  {
-    char c = Serial.read();
-    if (c == '!')
-    {
-      newName = true;
-      Serial.print("Your name is ");
-      Serial.println(name);
-    }
-    else if (newName)
-    {
-      newName = false;
-      name = "";
-      name += c;
-    }
-    else
-    {
-      name += c;
-    }
-  }
+
 }
 
 void postData()
