@@ -55,23 +55,22 @@ enum doorActionState {
 const byte maxLightAverage = 5;
 
 volatile byte doorStatus = 0;
-volatile byte systemError = 0;
-volatile long lastDoorCommand = 0;
+volatile byte systemError = 1;
 volatile byte lastDoorAction = DOOR_IDLE;
 unsigned long lastLightCheck = 0;
 const unsigned long lightTogglePeriod = 260000;
 const byte dayTimeLight = 30;
-const byte nightTimeLight = 40;
-const unsigned long  startUpDelay = 60000;
+const byte nightTimeLight = 35;
+const unsigned long  startUpDelay = 5000;
 volatile byte lightLevels[maxLightAverage] = {0,0,0,0,0};
 volatile byte lightLevelInc = 0;
+volatile byte stopLightRead = 0;
 
 
 
 //Monitor the Door runs in a loop
 byte systemCheck()
 {
-
     //Reset LED, the error could be cleared
     if(systemError)
     {
@@ -89,9 +88,7 @@ byte systemCheck()
       {
         systemError = 0;
       }
-    }
-    
-    
+    }  
     Serial.print(F("systemCheck::Performing Normal System Checks --")); 
     Serial.print(F(" Door Top:"));
     Serial.print(digitalRead(topDoor));
@@ -105,6 +102,7 @@ byte systemCheck()
     if(systemError) //Something is really wrong, user action is required
     {
         ledError();
+        return 0; 
     }
     else if(! isDoorOpen() && ! isDoorClosed())
     {
@@ -120,8 +118,7 @@ byte systemCheck()
         ledError();
         return 0;       
     }
-    
-    if(isDoorClosed() && isItDayTime())
+    else if(isDoorClosed() && isItDayTime())
     {
 
         Serial.println(F("systemCheck::Open Door")); 
@@ -137,31 +134,25 @@ byte systemCheck()
         return 1;
     }
     
-    Serial.println(F("systemCheck::All Systems Go.")); 
-    return 1;
 }
 void loop()
 {
-
-  
-    //Every 3 minuites check light level and act
-    if((millis() - lastLightCheck) >= lightTogglePeriod)
-    {
-        lastLightCheck = millis();
-        recordLight();
-        systemCheck();
-    }
-
     //Pet the dog
     if(doorStatus == DOOR_IDLE || doorStatus == DOOR_ERROR)
     {
+      //Every x minuites check light level and act
+      if((millis() - lastLightCheck) >= lightTogglePeriod)
+      {
+          lastLightCheck = millis();
+          recordLight();
+          systemCheck();
+      }
       wdt_reset();
-    }
-
-        
-  #ifdef ENABLE_DEBUG 
-    debug();
-  #endif
+    }  
+    
+    #ifdef ENABLE_DEBUG 
+      debug();
+    #endif
 }
 void initLight()
 {
@@ -172,16 +163,18 @@ void initLight()
 }
 void recordLight()
 {
-
-  lightLevels[lightLevelInc] = analogRead(lightSensor) / 4;
-
-  if(lightLevelInc < 4)
+  if(!stopLightRead)
   {
-    lightLevelInc++;
-  }
-  else
-  {
-    lightLevelInc = 0;
+    lightLevels[lightLevelInc] = analogRead(lightSensor) / 4;
+  
+    if(lightLevelInc < 4)
+    {
+      lightLevelInc++;
+    }
+    else
+    {
+      lightLevelInc = 0;
+    }
   }
 
 }
@@ -261,30 +254,29 @@ void userInput()
 }
 void OpenDoor()
 {
+    stopLightRead = 1;
     ledMovement();
     lastDoorAction = DOOR_OPENING;
-    lastDoorCommand = millis();
     doorStatus = 1;
     move(255, 1);
 }
 void CloseDoor()
 {
+    stopLightRead = 1;
     ledMovement();
     lastDoorAction = DOOR_CLOSEING;
-    lastDoorCommand = millis();
     doorStatus = 2;
     move(255, 0);
 }
 void StopDoor()
 {
-    lastDoorCommand = millis();
+    stopLightRead = 0;
     doorStatus = 0;
     stop();
 }
 void StopDoorError()
 {
     lastDoorAction = DOOR_ERROR;
-    lastDoorCommand = millis();
     doorStatus = 0;
     stop();
 }
@@ -366,15 +358,13 @@ ISR (PCINT1_vect) // handle pin change interrupt for A0 to A5 here
     {
         //Sometimes the reed triggers a little early...go up a Tad.
         wdt_reset();
-        delay(1500);
         StopDoor();
         ledOpen();
     }
     else if(doorStatus == DOOR_CLOSEING && bottomDoorStatus)
     {
         //Give extra slack to lock door
-        wdt_reset();
-        delay(7000);   
+        wdt_reset(); 
         StopDoor();
         ledClosed();
     }
@@ -389,7 +379,7 @@ void setup()
 {
 
     //Some wierdness when power was quickly cut..lets delay so we dont a bad reading.
- //   delay(startUpDelay);
+    delay(startUpDelay);
     
     Serial.begin(9600);
     //Motor
@@ -407,7 +397,7 @@ void setup()
     pinMode(manualControl, INPUT);
     attachInterrupt(digitalPinToInterrupt(manualControl), userInput, FALLING);
     //Light
-    pinMode(lightSensor, OUTPUT);    // sets the digital pin as input to read switch
+    pinMode(lightSensor, OUTPUT);   
     //LED
     pinMode(redLed, OUTPUT);
     pinMode(greenLed, OUTPUT);
@@ -418,7 +408,7 @@ void setup()
 
     initLight();
     //Who let the dogs out?
-    wdt_enable(WDTO_8S);
+    wdt_enable(WDTO_4S);
 
     systemCheck();
     
