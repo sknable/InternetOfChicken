@@ -15,16 +15,15 @@
                 function(){
                     $(function()
                     { //DOM Ready
-                        freeboard.initialize(true);
+                        freeboard.initialize(false);
 
-                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
-                        if (hashpattern !== null) {
-                            $.getJSON(hashpattern[2], function(data) {
+          
+                            $.getJSON("dashboard.json", function(data) {
                                 freeboard.loadDashboard(data, function() {
                                     freeboard.setEditing(false);
                                 });
                             });
-                        }
+                       
 
                     });
                 });
