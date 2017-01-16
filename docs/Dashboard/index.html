@@ -16,11 +16,11 @@
                     $(function()
                     { //DOM Ready
                         freeboard.initialize(false);
-
+						freeboard.setEditing(false);
           
                             $.getJSON("dashboard.json", function(data) {
                                 freeboard.loadDashboard(data, function() {
-                                    freeboard.setEditing(false);
+                                    
                                 });
                             });
                        
