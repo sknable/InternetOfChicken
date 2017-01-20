@@ -1,0 +1,9 @@
+/node_modules/
+.env
+npm-debug.log
+*.swp
+/tmp/
+/test/tmp/
+/phant_streams/
+.DS_Store
+.vagrant

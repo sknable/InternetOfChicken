@@ -1,0 +1,64 @@
+{
+  "name": "phant",
+  "version": "6.8.0",
+  "main": "index.js",
+  "description": "data collection server for the internet of things",
+  "homepage": "https://github.com/sparkfun/phant",
+  "bugs": "https://github.com/sparkfun/phant/issues",
+  "author": {
+    "name": "Todd Treece",
+    "email": "todd@uniontownlabs.org",
+    "url": "http://uniontownlabs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sparkfun/phant"
+  },
+  "license": "GPL-3.0",
+  "keywords": [
+    "phant",
+    "sparkfun",
+    "data",
+    "internet of things"
+  ],
+  "engines": {
+    "node": "^0.10.30"
+  },
+  "bin": {
+    "phant": "app.js"
+  },
+  "scripts": {
+    "start": "app.js"
+  },
+  "dependencies": {
+    "JSONStream": "^0.8.0",
+    "async": "~0.9.0",
+    "csv-write-stream": "^0.1.1",
+    "datejs": "^1.0.0-rc1",
+    "formidable": "~1.0.14",
+    "moment-timezone": "^0.2.1",
+    "qs": "^1.2.2",
+    "routes": "^1.2.0",
+    "wez-telnet": "^0.1.1",
+    "xml": "0.0.12"
+  },
+  "optionalDependencies": {
+    "dotenv": "^0.2.5",
+    "phant-keychain-hex": "^0.2.1",
+    "phant-stream-csv": "^2.0.3",
+    "phant-meta-nedb": "^3.0.0",
+    "phant-manager-http": "^4.5.10"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.7.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-watch": "~0.5.0",
+    "grunt-jsbeautifier": "^0.2.7",
+    "jshint-stylish": "~0.1.3",
+    "load-grunt-tasks": "~0.2.0",
+    "request": "^2.36.0",
+    "rimraf": "^2.2.8",
+    "telnet-client": "0.0.6",
+    "time-grunt": "~0.2.0"
+  }
+}
