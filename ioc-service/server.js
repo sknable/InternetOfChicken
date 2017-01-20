@@ -9,7 +9,7 @@ var Phant = require('./index'),
     HttpManager = require('phant-manager-http'),
     app = Phant()
     http_port = process.env.PORT || 80,
-    telnet_port = process.env.PHANT_TELNET_PORT || 22;
+    telnet_port = process.env.PHANT_TELNET_PORT || 1025;
 
 var keys = Keychain({
   publicSalt: process.env.PHANT_PUBLIC_SALT || 'public salt',
