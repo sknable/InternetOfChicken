@@ -1,34 +1,30 @@
 {
-  "name": "phant",
+  "name": "ioc-service",
   "version": "6.8.0",
   "main": "index.js",
-  "description": "data collection server for the internet of things",
-  "homepage": "https://github.com/sparkfun/phant",
-  "bugs": "https://github.com/sparkfun/phant/issues",
+  "description": "data collection server for internet of chicken",
+  "homepage": "https://github.com/internetofchicken",
   "author": {
-    "name": "Todd Treece",
-    "email": "todd@uniontownlabs.org",
-    "url": "http://uniontownlabs.org"
+    "name": "Steve Knable",
+    "email": "steve@steveknable.com",
+    "url": "http://www.steveknable.com"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/sparkfun/phant"
+    "url": "git://github.com/sknable/internetofchicken"
   },
   "license": "GPL-3.0",
   "keywords": [
-    "phant",
-    "sparkfun",
-    "data",
-    "internet of things"
+    "chicken"
   ],
   "engines": {
     "node": "^0.10.30"
   },
   "bin": {
-    "phant": "app.js"
+    "ioc-service": "server.js"
   },
   "scripts": {
-    "start": "app.js"
+    "start": "server.js"
   },
   "dependencies": {
     "JSONStream": "^0.8.0",
