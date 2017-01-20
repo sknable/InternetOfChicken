@@ -1,8 +1,11 @@
 # IOC
-Internet of Chicken. An automated chicken coop using adrunio
+Internet of Chicken. An automated chicken coop using Adrunio
 
-#Phant Feed 
-https://data.sparkfun.com/streams/MGXlwMXb4KFbLVgEMaGE
+#Data Feed 
+http://ioc-phant.azurewebsites.net/
 
 #Dashboard
-http://internetofchicken.com
+http://internetofchicken.com/dashboard
+
+#live coop cam
+http://coop.internetofchicken.com
