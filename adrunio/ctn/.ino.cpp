@@ -2,7 +2,7 @@
 //This is a automatic generated file
 //Please do not modify this file
 //If you touch this file your change will be overwritten during the next build
-//This file has been generated on 2017-01-27 14:36:49
+//This file has been generated on 2017-01-27 15:45:26
 
 #include "Arduino.h"
 #include <DHT.h>
@@ -12,7 +12,7 @@
 void setup() ;
 void setVersion() ;
 void printTemp() ;
-void loop()  ;
+void loop() ;
 void fanControl() ;
 void readTemp() ;
 void receiveEvent(int howMany) ;
