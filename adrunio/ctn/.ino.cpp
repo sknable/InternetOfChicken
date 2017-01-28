@@ -2,12 +2,12 @@
 //This is a automatic generated file
 //Please do not modify this file
 //If you touch this file your change will be overwritten during the next build
-//This file has been generated on 2017-01-27 15:45:26
+//This file has been generated on 2017-01-27 21:03:24
 
 #include "Arduino.h"
-#include <DHT.h>
+#include "DHT.h"
 #include <SoftwareSerial.h>
-#include <serLCD.h>
+#include "serLCD.h"
 #include <Wire.h>
 void setup() ;
 void setVersion() ;

@@ -1,11 +1,13 @@
-#include <DHT.h>
+#include "DHT.h"
 #include <SoftwareSerial.h>
-#include <serLCD.h>
+#include "serLCD.h"
 #include <Wire.h>
+
 #define DHTPIN 2     // what digital pin we're connected to
 #define SERPIN 7
 #define FANPIN 11
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
+
 DHT dht(DHTPIN, DHTTYPE);
 serLCD lcd(SERPIN);
 
@@ -17,6 +19,7 @@ const float maxHumidity = 45.0;
 
 void setup()
 {
+
 	Serial.begin(9600);
 	Wire.begin(8);                // join i2c bus with address #8
 	Wire.onReceive(receiveEvent); // register event
