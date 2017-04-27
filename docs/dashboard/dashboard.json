@@ -4,69 +4,6 @@
 	"plugins": [],
 	"panes": [
 		{
-			"title": "Coop Cam",
-			"width": 1,
-			"row": {
-				"3": 15,
-				"4": 15,
-				"5": 15,
-				"6": 5
-			},
-			"col": {
-				"3": 2,
-				"4": 2,
-				"5": 2,
-				"6": 2
-			},
-			"col_width": 1,
-			"widgets": [
-				{
-					"type": "picture",
-					"settings": {
-						"src": "http://cam.internetofchicken.com/image/jpeg.cgi",
-						"refresh": 30
-					}
-				}
-			]
-		},
-		{
-			"title": "Enviroment",
-			"width": 1,
-			"row": {
-				"3": 9,
-				"4": 9,
-				"5": 9,
-				"6": 1
-			},
-			"col": {
-				"3": 2,
-				"4": 2,
-				"5": 2,
-				"6": 2
-			},
-			"col_width": 1,
-			"widgets": [
-				{
-					"type": "indicator",
-					"settings": {
-						"title": "Door",
-						"value": "if (datasources[\"Phant \"][0][\"door_position\"] == \"1\")\n    return 1\nelse\n    return 0",
-						"on_text": "Open",
-						"off_text": "Closed"
-					}
-				},
-				{
-					"type": "indicator",
-					"settings": {
-						"title": "Fan",
-						"value": "if (datasources[\"Phant \"][0][\"fan_control\"] == \"1\")\n    return 1\nelse\n    return 0",
-						"on_text": "On",
-						"off_text": "Off"
-					}
-				}
-			]
-		},
-		{
 			"title": "Light",
 			"width": 1,
 			"row": {
@@ -87,39 +24,9 @@
 					"type": "gauge",
 					"settings": {
 						"title": "",
-						"value": "datasources[\"Phant \"][0][\"light_lvl\"]",
+						"value": "datasources[\"IOC\"][0][\"light\"]",
 						"min_value": 0,
 						"max_value": "200"
-					}
-				}
-			]
-		},
-		{
-			"title": "Coop Tempature",
-			"width": 1,
-			"row": {
-				"3": 11,
-				"4": 1,
-				"5": 1,
-				"6": 1
-			},
-			"col": {
-				"3": 1,
-				"4": 3,
-				"5": 3,
-				"6": 1
-			},
-			"col_width": 1,
-			"widgets": [
-				{
-					"type": "sparkline",
-					"settings": {
-						"value": [
-							"datasources[\"Phant \"][0][\"coop_temp\"]",
-							"datasources[\"Phant \"][0][\"water_temp\"]"
-						],
-						"include_legend": true,
-						"legend": "Coop,Water"
 					}
 				}
 			]
@@ -142,7 +49,7 @@
 				{
 					"type": "gauge",
 					"settings": {
-						"value": "datasources[\"Phant \"][0][\"humidity\"]",
+						"value": "datasources[\"IOC\"][0][\"humidity\"]",
 						"min_value": 0,
 						"max_value": 100
 					}
@@ -154,7 +61,7 @@
 			"width": 1,
 			"row": {
 				"3": 1,
-				"4": 1,
+				"4": 9,
 				"5": 1
 			},
 			"col": {
@@ -203,6 +110,43 @@
 			]
 		},
 		{
+			"title": "Enviroment",
+			"width": 1,
+			"row": {
+				"3": 9,
+				"4": 9,
+				"5": 9,
+				"6": 1
+			},
+			"col": {
+				"3": 2,
+				"4": 2,
+				"5": 2,
+				"6": 2
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "indicator",
+					"settings": {
+						"title": "Door",
+						"value": "datasources[\"IOC\"][0][\"door\"]",
+						"on_text": "Open",
+						"off_text": "Closed"
+					}
+				},
+				{
+					"type": "indicator",
+					"settings": {
+						"title": "Fan",
+						"value": "datasources[\"IOC\"][0][\"fan\"]",
+						"on_text": "On",
+						"off_text": "Off"
+					}
+				}
+			]
+		},
+		{
 			"title": "Methane",
 			"width": 1,
 			"row": {
@@ -228,18 +172,95 @@
 					}
 				}
 			]
+		},
+		{
+			"title": "Coop Tempature",
+			"width": 1,
+			"row": {
+				"3": 11,
+				"4": 1,
+				"5": 1,
+				"6": 1
+			},
+			"col": {
+				"3": 1,
+				"4": 3,
+				"5": 3,
+				"6": 1
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "sparkline",
+					"settings": {
+						"value": [
+							"datasources[\"IOC\"][0][\"temp\"]",
+							"datasources[\"Phant \"][0][\"water_temp\"]"
+						],
+						"include_legend": true,
+						"legend": "Coop,Water"
+					}
+				}
+			]
+		},
+		{
+			"title": "Coop Cam",
+			"width": 1,
+			"row": {
+				"3": 15,
+				"4": 9,
+				"5": 15,
+				"6": 5
+			},
+			"col": {
+				"3": 2,
+				"4": 4,
+				"5": 2,
+				"6": 2
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "picture",
+					"settings": {
+						"src": "http://cam.internetofchicken.com/image/jpeg.cgi",
+						"refresh": 30
+					}
+				}
+			]
+		},
+		{
+			"width": 1,
+			"row": {
+				"4": 1
+			},
+			"col": {
+				"4": 1
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "gauge",
+					"settings": {
+						"title": "Temp",
+						"value": "datasources[\"IOC\"][0][\"temp\"]",
+						"units": "F",
+						"min_value": 0,
+						"max_value": "120"
+					}
+				}
+			]
 		}
 	],
 	"datasources": [
 		{
-			"name": "Phant ",
+			"name": "IOC",
 			"type": "JSON",
 			"settings": {
-				"url": "http://data.sparkfun.com/output/MGXlwMXb4KFbLVgEMaGE.json",
+				"url": "http://data.internetofchicken.com/output/2vL1A3yowXHMaXrQzoqySzX90DV.json",
 				"use_thingproxy": true,
-				"refresh": 30,
-				"method": "GET",
-				"name": "Phant "
+				"refresh": 60,
+				"method": "GET"
 			}
 		}
 	],
