@@ -46,7 +46,10 @@ const byte topDoor = A3;
 //Global
 enum doorActionState
 {
-	DOOR_IDLE, DOOR_OPENING, DOOR_CLOSEING, DOOR_ERROR,
+	DOOR_IDLE, 
+	DOOR_OPENING, 
+	DOOR_CLOSEING, 
+	DOOR_ERROR,
 };
 
 #define ENABLE_DEBUG 0
@@ -59,7 +62,7 @@ volatile byte lastDoorAction = DOOR_IDLE;
 unsigned long lastLightCheck = 0;
 const unsigned long lightTogglePeriod = 260000;
 const byte dayTimeLight = 30;
-const byte nightTimeLight = 35;
+const byte nightTimeLight = 45;
 const unsigned long startUpDelay = 5000;
 volatile byte lightLevels[maxLightAverage] =
 { 0, 0, 0, 0, 0 };
@@ -338,8 +341,10 @@ void move(byte speed, byte direction)
 }
 void stop()
 {
-	//enable standby
-	digitalWrite(stdby, LOW);
+	digitalWrite(stdby, HIGH);
+	digitalWrite(ain1, LOW);
+  digitalWrite(ain2, LOW);
+  analogWrite(pwma,0);
 }
 
 void pciSetup(byte pin)

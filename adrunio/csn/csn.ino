@@ -7,6 +7,7 @@
 #include <SFE_CC3000.h>
 #include <SFE_CC3000_Client.h>
 #include <Wire.h>
+#include <CMessage.h>
 ////////////////////////////////////
 // CC3000 Shield Pins & Variables //
 ////////////////////////////////////
@@ -26,7 +27,7 @@ unsigned int ap_security = WLAN_SEC_WPA2; // Security of network
 //  WLAN_SEC_WPA, or WLAN_SEC_WPA2
 unsigned int timeout = 30000;             // Milliseconds
 char server[] = "data.sparkfun.com";      // Remote host site
-
+Cmessage msg;
 // Initialize the CC3000 objects (shield and client):
 SFE_CC3000 wifi = SFE_CC3000(CC3000_INT, CC3000_EN, CC3000_CS);
 SFE_CC3000_Client client = SFE_CC3000_Client(wifi);

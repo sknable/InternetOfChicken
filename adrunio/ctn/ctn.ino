@@ -16,6 +16,7 @@ float tempature = 0;
 const unsigned long sensotTogglePeriod = 2600;
 unsigned long lastCheck = 0;
 const float maxHumidity = 45.0;
+const float maxTemp = 85.0;
 
 void setup()
 {
@@ -63,7 +64,7 @@ void loop()
 }
 void fanControl()
 {
-	if (maxHumidity <= humidity)
+	if (maxHumidity <= humidity || maxTemp <= tempature)
 	{
 		Serial.println("Fan On");
 		analogWrite(FANPIN, 255);
