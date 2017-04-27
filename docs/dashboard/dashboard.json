@@ -14,7 +14,7 @@
 			},
 			"col": {
 				"3": 2,
-				"4": 2,
+				"4": 3,
 				"5": 2,
 				"6": 1
 			},
@@ -41,7 +41,7 @@
 			},
 			"col": {
 				"3": 3,
-				"4": 4,
+				"4": 2,
 				"5": 4
 			},
 			"col_width": 1,
@@ -57,54 +57,25 @@
 			]
 		},
 		{
-			"title": "Nesting Boxs",
 			"width": 1,
 			"row": {
 				"3": 1,
-				"4": 9,
-				"5": 1
+				"4": 1
 			},
 			"col": {
 				"3": 1,
-				"4": 1,
-				"5": 5
+				"4": 1
 			},
 			"col_width": 1,
 			"widgets": [
 				{
-					"type": "indicator",
+					"type": "gauge",
 					"settings": {
-						"title": "Nest 1",
-						"value": "if (datasources[\"Phant \"][0][\"nest_1\"] == \"1\")\n    return 1\nelse\n    return 0",
-						"on_text": "Egg",
-						"off_text": "No Egg"
-					}
-				},
-				{
-					"type": "indicator",
-					"settings": {
-						"title": "Nest 2",
-						"value": "\nif (datasources[\"Phant \"][0][\"nest_2\"] == \"1\")\n    return 1\nelse\n    return 0",
-						"on_text": "Egg",
-						"off_text": "No Egg"
-					}
-				},
-				{
-					"type": "indicator",
-					"settings": {
-						"title": "Nest 3",
-						"value": "\nif (datasources[\"Phant \"][0][\"nest_1\"] == \"3\")\n    return 1\nelse\n    return 0",
-						"on_text": "Egg",
-						"off_text": "No Egg"
-					}
-				},
-				{
-					"type": "indicator",
-					"settings": {
-						"title": "Nest 4",
-						"value": "\nif (datasources[\"Phant \"][0][\"nest_4\"] == \"1\")\n    return 1\nelse\n    return 0",
-						"on_text": "Egg",
-						"off_text": "No Egg"
+						"title": "Temp",
+						"value": "datasources[\"IOC\"][0][\"temp\"]",
+						"units": "F",
+						"min_value": 0,
+						"max_value": "120"
 					}
 				}
 			]
@@ -120,7 +91,7 @@
 			},
 			"col": {
 				"3": 2,
-				"4": 2,
+				"4": 1,
 				"5": 2,
 				"6": 2
 			},
@@ -147,63 +118,6 @@
 			]
 		},
 		{
-			"title": "Methane",
-			"width": 1,
-			"row": {
-				"3": 9,
-				"4": 8,
-				"5": 8
-			},
-			"col": {
-				"3": 3,
-				"4": 3,
-				"5": 3
-			},
-			"col_width": 1,
-			"widgets": [
-				{
-					"type": "sparkline",
-					"settings": {
-						"value": [
-							"datasources[\"Phant \"][0][\"methane\"]"
-						],
-						"include_legend": true,
-						"legend": "Methane"
-					}
-				}
-			]
-		},
-		{
-			"title": "Coop Tempature",
-			"width": 1,
-			"row": {
-				"3": 11,
-				"4": 1,
-				"5": 1,
-				"6": 1
-			},
-			"col": {
-				"3": 1,
-				"4": 3,
-				"5": 3,
-				"6": 1
-			},
-			"col_width": 1,
-			"widgets": [
-				{
-					"type": "sparkline",
-					"settings": {
-						"value": [
-							"datasources[\"IOC\"][0][\"temp\"]",
-							"datasources[\"Phant \"][0][\"water_temp\"]"
-						],
-						"include_legend": true,
-						"legend": "Coop,Water"
-					}
-				}
-			]
-		},
-		{
 			"title": "Coop Cam",
 			"width": 1,
 			"row": {
@@ -214,7 +128,7 @@
 			},
 			"col": {
 				"3": 2,
-				"4": 4,
+				"4": 2,
 				"5": 2,
 				"6": 2
 			},
@@ -225,28 +139,6 @@
 					"settings": {
 						"src": "http://cam.internetofchicken.com/image/jpeg.cgi",
 						"refresh": 30
-					}
-				}
-			]
-		},
-		{
-			"width": 1,
-			"row": {
-				"4": 1
-			},
-			"col": {
-				"4": 1
-			},
-			"col_width": 1,
-			"widgets": [
-				{
-					"type": "gauge",
-					"settings": {
-						"title": "Temp",
-						"value": "datasources[\"IOC\"][0][\"temp\"]",
-						"units": "F",
-						"min_value": 0,
-						"max_value": "120"
 					}
 				}
 			]
