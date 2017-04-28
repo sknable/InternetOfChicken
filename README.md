@@ -2,7 +2,7 @@
 Internet of Chicken. An automated chicken coop using Adrunio
 
 #Data Feed 
-http://ioc-phant.azurewebsites.net/
+http://data.internetofchicken.com
 
 #Dashboard
 http://internetofchicken.com/dashboard
