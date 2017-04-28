@@ -1,4 +1,5 @@
 
+
 # IOC
 Internet of Chicken. An automated chicken coop using Adrunio
 
@@ -12,11 +13,13 @@ http://internetofchicken.com/dashboard
 http://coop.internetofchicken.com
 
 #software
+
 https://github.com/Freeboard/freeboard hosted on Github
 
 https://github.com/sparkfun/phant running on Azure App Serivces
 
 #hardware
+
 https://www.sparkfun.com/products/retired/12071
 
 https://www.sparkfun.com/products/9088
