@@ -7,7 +7,6 @@
 #include <SFE_CC3000.h>
 #include <SFE_CC3000_Client.h>
 #include <Wire.h>
-#include <CMessage.h>
 ////////////////////////////////////
 // CC3000 Shield Pins & Variables //
 ////////////////////////////////////
@@ -26,87 +25,140 @@ unsigned int ap_security = WLAN_SEC_WPA2; // Security of network
 // ap_security can be any of: WLAN_SEC_UNSEC, WLAN_SEC_WEP, 
 //  WLAN_SEC_WPA, or WLAN_SEC_WPA2
 unsigned int timeout = 30000;             // Milliseconds
-char server[] = "data.sparkfun.com";      // Remote host site
-Cmessage msg;
+char server[] = "data.internetofchicken.com";      // Remote host site
+
 // Initialize the CC3000 objects (shield and client):
 SFE_CC3000 wifi = SFE_CC3000(CC3000_INT, CC3000_EN, CC3000_CS);
 SFE_CC3000_Client client = SFE_CC3000_Client(wifi);
 
-/////////////////
-// Phant Stuff //
-/////////////////
-//1aM5oQWMbGC8Kzx9Oba7
-const String publicKey = "VG6Wox56zbu17vwrRlzg";
-const String privateKey = "9Y1qGdz19BhqPdWzg9Mb";
-const byte NUM_FIELDS = 2;
+const String publicKey = "2vL1A3yowXHMaXrQzoqySzX90DV";
+const String privateKey = "vyL37d2POph3BD6gbL9qTWwqRYO";
+const byte NUM_FIELDS = 5;
 const String fieldNames[NUM_FIELDS] =
-{ "humidity", "temp" };
+{ "humidity", "temp","fan","door","light" };
 String fieldData[NUM_FIELDS];
+
+unsigned long lastUpdate = 0;
+const unsigned long updatePeriod = 26000;
 
 void setup()
 {
 	Serial.begin(9600);
 	Wire.begin();        // join i2c bus (address optional for master)
-	// Set Up WiFi:
 	setupWiFi();
 
+  for(int i = 0;i < NUM_FIELDS;i++)
+    fieldData[i] = "0";
+lastUpdate = millis();
 }
 
 void loop()
 {
-	Wire.requestFrom(8, 4);    // request 6 bytes from slave device #8
 
-	while (Wire.available())
-	{ // slave may send less than requested
-		char c = Wire.read(); // receive a byte as character
-		Serial.print(c);         // print the character
-	}
-	Serial.println("");
-	delay(2500);
+  if ((millis() - lastUpdate) >= updatePeriod)
+  {
+    Serial.println("--Start Request--");
+    lastUpdate = millis();
+  	Wire.requestFrom(8, 5); 
+    int i = 0;
+    //Forgot what max is
+    byte data[256];
+  	while (Wire.available())
+  	{ 
+  		data[i] = Wire.read();
+      Serial.println(data[i]);
+      i++;
+  	}
+
+    //First 2 are hum
+    int hum = data[0] << 8;
+    hum |= data[1];
+    //Next 2 temp
+    int temp = data[2] << 8;
+    temp |= data[3];
+    //last fan
+    byte fan = data[4];
+    
+    fieldData[0] = String(hum); 
+    fieldData[1] = String(temp); 
+    fieldData[2] = String(fan); 
+
+    Wire.requestFrom(9, 2); 
+    data[0] = 0;
+    data[1] = 0;
+    i=0;
+    while (Wire.available())
+    { 
+      data[i] = Wire.read();
+      Serial.println(data[i]);
+      i++;
+    }
+    fieldData[3] = data[0]; 
+    fieldData[4] = data[1];
+    
+  	Serial.println("--Done with Request--");
+    postData();
+  }
+
 
 }
 
 void postData()
 {
 
+  Serial.println("Start HTTP");
 	// Make a TCP connection to remote host
 	if (!client.connect(server, 80))
 	{
-		// Error: 4 - Could not make a TCP connection
-		Serial.println(F("Error: 4"));
+		Serial.println(F("Error: Could not make a TCP connection"));
+    wifi.disconnect();
+    setupWiFi();
 	}
+  else
+  {
 
-	// Post the data! Request should look a little something like:
-	// GET /input/publicKey?private_key=privateKey&light=1024&switch=0&time=5201 HTTP/1.1\n
-	// Host: data.sparkfun.com\n
-	// Connection: close\n
-	// \n
-	client.print("GET /input/");
-	client.print(publicKey);
-	client.print("?private_key=");
-	client.print(privateKey);
-	for (int i = 0; i < NUM_FIELDS; i++)
-	{
-		client.print("&");
-		client.print(fieldNames[i]);
-		client.print("=");
-		client.print(fieldData[i]);
-	}
-	client.println(" HTTP/1.1");
-	client.print("Host: ");
-	client.println(server);
-	client.println("Connection: close");
-	client.println();
-
-	while (client.connected())
-	{
-		if (client.available())
-		{
-			char c = client.read();
-			Serial.print(c);
-		}
-	}
-	Serial.println();
+  	client.print("GET /input/");
+    Serial.print("GET /input/");
+  	client.print(publicKey);
+    Serial.print(publicKey);
+  	client.print("?private_key=");
+  	client.print(privateKey);
+    Serial.print("?private_key=");
+    Serial.print(privateKey);
+  	for (int i = 0; i < NUM_FIELDS; i++)
+  	{
+  		client.print("&");
+  		client.print(fieldNames[i]);
+  		client.print("=");
+  		client.print(fieldData[i]);
+  
+      Serial.print("&");
+      Serial.print(fieldNames[i]);
+      Serial.print("=");
+      Serial.print(fieldData[i]);
+  	}
+  	client.println(" HTTP/1.1");
+  	client.print("Host: ");
+  	client.println(server);
+  	client.println("Connection: close");
+  	client.println();
+  
+    Serial.println(" HTTP/1.1");
+    Serial.print("Host: ");
+    Serial.println(server);
+    Serial.println("Connection: close");
+    Serial.println();
+  
+  	while (client.connected())
+  	{
+  		if (client.available())
+  		{
+  			char c = client.read();
+  			Serial.print(c);
+  		}
+  	}
+  }
+	Serial.println("End HTTP");
 }
 
 void setupWiFi()
@@ -121,8 +173,7 @@ void setupWiFi()
 	}
 	else
 	{
-		// Error: 0 - Something went wrong during CC3000 init!
-		Serial.println(F("Error: 0"));
+		Serial.println(F("Error: Something went wrong during CC3000 init"));
 	}
 
 	// Connect using DHCP
@@ -130,15 +181,13 @@ void setupWiFi()
 	Serial.println(ap_ssid);
 	if (!wifi.connect(ap_ssid, ap_security, ap_password, timeout))
 	{
-		// Error: 1 - Could not connect to AP
-		Serial.println(F("Error: 1"));
+		Serial.println(F("Error: Could not connect to AP"));
 	}
 
 	// Gather connection details and print IP address
 	if (!wifi.getConnectionInfo(connection_info))
 	{
-		// Error: 2 - Could not obtain connection details
-		Serial.println(F("Error: 2"));
+		Serial.println(F("Error: Could not obtain connection details"));
 	}
 	else
 	{

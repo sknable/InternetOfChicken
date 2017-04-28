@@ -16,8 +16,8 @@ float tempature = 0;
 const unsigned long sensotTogglePeriod = 2600;
 unsigned long lastCheck = 0;
 const float maxHumidity = 45.0;
-const float maxTemp = 85.0;
-
+const float maxTemp = 75.0;
+byte fan = 0;
 void setup()
 {
 
@@ -36,7 +36,7 @@ void setVersion()
 	lcd.clear();
 	lcd.print("Chicken Coop");
 	lcd.selectLine(2);
-	lcd.print("V1.1  10/14/2016");
+	lcd.print("V1.2  4/26/2017");
 	lcd.setSplash();
 }
 void printTemp()
@@ -47,7 +47,6 @@ void printTemp()
 	lcd.selectLine(2);
 	lcd.print(humidity);
 	lcd.print(" %");
-
 }
 
 void loop()
@@ -68,11 +67,13 @@ void fanControl()
 	{
 		Serial.println("Fan On");
 		analogWrite(FANPIN, 255);
+    fan = 1;
 	}
 	else
 	{
 		Serial.println("Fan Off");
 		analogWrite(FANPIN, 0);
+    fan = 0;
 	}
 }
 void readTemp()
@@ -101,8 +102,17 @@ void receiveEvent(int howMany)
 }
 void requestEvent()
 {
-	String temp = String(humidity, 1);
-	Wire.write(temp.c_str()); // respond with message of 6 bytes
-	// as expected by master
+
+    byte data[5];
+
+  data[0] = ((int)humidity & 0xff00) >> 8;
+  data[1] = (int)humidity & 0xff;
+
+  data[2] = ((int)tempature & 0xff00) >> 8;
+  data[3] = (int)tempature & 0xff;
+
+  data[4] = fan;
+	
+  Wire.write(data,5);
 }
 

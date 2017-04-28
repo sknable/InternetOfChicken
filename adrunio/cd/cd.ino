@@ -25,6 +25,7 @@
  |  UNO_R3    GND MOSI 5V  ____________/
  \_______________________/ */
 #include <avr/wdt.h>
+#include <Wire.h>
 //Motor PINS
 const byte stdby = 10; //standby
 const byte ain1 = 9; //Direction
@@ -391,6 +392,9 @@ void setup()
 	delay(startUpDelay);
 
 	Serial.begin(9600);
+  Wire.begin(9);                // join i2c bus with address #8
+  Wire.onReceive(receiveEvent); // register event
+  Wire.onRequest(requestEvent); // register event
 	//Motor
 	pinMode(stdby, OUTPUT);
 	pinMode(pwma, OUTPUT);
@@ -423,7 +427,32 @@ void setup()
 
 	lastLightCheck = millis();
 }
+void receiveEvent(int howMany)
+{
+  while (1 < Wire.available())
+  { // loop through all but the last
+    char c = Wire.read(); // receive byte as a character
+    Serial.print(c);         // print the character
+  }
+  int x = Wire.read();    // receive byte as an integer
+  Serial.println(x);         // print the integer
+}
+void requestEvent()
+{
 
+  byte data[2];
+
+  if(isDoorOpen())
+    data[0] = 1;
+  else if (isDoorClosed())
+    data[0] = 0;
+  else
+    data[0] = 3;
+  
+  data[1] = lightLevels[lightLevelInc];
+  
+  Wire.write(data,2);
+}
 #ifdef ENABLE_DEBUG
 void debug()
 {
