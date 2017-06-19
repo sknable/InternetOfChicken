@@ -18,7 +18,7 @@
  | [X]A0    -| N |-               5[X]~|
  | [ ]A1    -| O |-               4[ ] |
  | [X]A2     +---+           INT1/3[X]~|
- | [X]A3                     INT0/2[X] |
+ | [X]A3                     INT0/2[]  |
  | [ ]A4/SDA  RST SCK MISO     TX>1[ ] |
  | [ ]A5/SCL  [ ] [ ] [ ]      RX<0[ ] |
  |            [ ] [ ] [ ]              |
@@ -38,7 +38,7 @@ const byte blueLed = 11;   // BLUE pin of the LED to PWM pin 6
 //Light
 const byte lightSensor = 0;
 //Button
-const byte manualControl = 2;
+const byte manualControl = 2; // Not being used
 //Door Bottom
 const byte bottomDoor = A2;
 //Door Top
@@ -145,7 +145,7 @@ void loop()
 		if(closeDoorMore)
 		{
 			move(255, 0);
-			delay(1000);
+			delay(500);
 			stop();
 			closeDoorMore = 0;
 		}
@@ -246,20 +246,6 @@ byte isDoorClosed()
 }
 void userInput()
 {
-
-	Serial.print(F("manualControl"));
-	if (doorStatus == DOOR_IDLE)
-	{
-		if (isDoorClosed())
-		{
-			OpenDoor();
-		}
-		else if (isDoorOpen())
-		{
-			CloseDoor();
-		}
-	}
-
 }
 void OpenDoor()
 {
@@ -406,9 +392,6 @@ void setup()
 	//Door Bottom
 	pinMode(bottomDoor, INPUT);  // sets the digital pin as input to read switch
 	pciSetup(bottomDoor);
-	//manualControl
-	pinMode(manualControl, INPUT);
-	attachInterrupt(digitalPinToInterrupt(manualControl), userInput, FALLING);
 	//Light
 	pinMode(lightSensor, OUTPUT);
 	//LED
@@ -439,7 +422,7 @@ void receiveEvent(int howMany)
 }
 void requestEvent()
 {
-
+  Serial.println("Data Request");
   byte data[2];
 
   if(isDoorOpen())
