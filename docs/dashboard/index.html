@@ -10,18 +10,21 @@
     <link href="css/freeboard.min.css" rel="stylesheet" />
     <script src="js/freeboard.thirdparty.min.js"></script>
     <script type="text/javascript">
-        head.js("js/freeboard_plugins.min.js",'plugins/thirdparty/plugin_highcharts.js',
+        head.js("js/freeboard_plugins.min.js","plugins/jqplot/index.js","plugins/highcharts/plugin_highcharts.js",
                 // *** Load more plugins here ***
                 function(){
                     $(function()
                     { //DOM Ready
                         freeboard.initialize(false);
-                            $.getJSON("dashboard.json", function(data) {
+                        var hashpattern = window.location.hash.match(/(&|#)source=([^&]+)/);
+
+                        var dashboard = (hashpattern !== null) ? hashpattern[2]:'dashboard.json';
+
+                            $.getJSON(dashboard, function(data) {
                                 freeboard.loadDashboard(data, function() {
                                     freeboard.setEditing(false);
                                 });
                             });
-                       
 
                     });
                 });
