@@ -8,7 +8,7 @@
 			"width": 1,
 			"row": {
 				"3": 1,
-				"4": 1,
+				"4": 9,
 				"5": 1,
 				"6": 8
 			},
@@ -82,17 +82,42 @@
 			]
 		},
 		{
+			"title": "Last Reported Status",
+			"width": 1,
+			"row": {
+				"3": 1,
+				"4": 1
+			},
+			"col": {
+				"3": 1,
+				"4": 1
+			},
+			"col_width": "2",
+			"widgets": [
+				{
+					"type": "text_widget",
+					"settings": {
+						"title": "",
+						"size": "regular",
+						"value": "var update = new Date(datasources[\"IOC\"][0][\"timestamp\"]);\n\nreturn update.toLocaleString();",
+						"animate": true,
+						"units": ""
+					}
+				}
+			]
+		},
+		{
 			"title": "Coop Enviroment",
 			"width": 1,
 			"row": {
 				"3": 9,
-				"4": 13,
+				"4": 1,
 				"5": 9,
 				"6": 1
 			},
 			"col": {
 				"3": 2,
-				"4": 1,
+				"4": 3,
 				"5": 2,
 				"6": 2
 			},
@@ -155,24 +180,44 @@
 			]
 		},
 		{
-			"title": "Last Reported Status",
+			"title": "WATER TEMPERATURE",
 			"width": 1,
 			"row": {
-				"4": 1
+				"4": 13
 			},
 			"col": {
 				"4": 1
 			},
-			"col_width": "2",
+			"col_width": 1,
 			"widgets": [
 				{
-					"type": "text_widget",
+					"type": "gauge",
 					"settings": {
-						"title": "",
-						"size": "regular",
-						"value": "var update = new Date(datasources[\"IOC\"][0][\"timestamp\"]);\n\nreturn update.toLocaleString();",
-						"animate": true,
-						"units": ""
+						"value": "datasources[\"IOC\"][0][\"water_temp\"]",
+						"units": "F",
+						"min_value": 0,
+						"max_value": 100
+					}
+				}
+			]
+		},
+		{
+			"title": "METHANE",
+			"width": 1,
+			"row": {
+				"4": 17
+			},
+			"col": {
+				"4": 3
+			},
+			"col_width": 1,
+			"widgets": [
+				{
+					"type": "gauge",
+					"settings": {
+						"value": "datasources[\"IOC\"][0][\"methane\"]",
+						"min_value": 0,
+						"max_value": "3000"
 					}
 				}
 			]
