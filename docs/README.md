@@ -7,7 +7,7 @@ A project to fully automate my chicken coop of 9 chickens. After going through d
 - Restfull API to accept data and provide data from IOT devices.
 - Software deployable in a Docker container.
 
-### Technolgy
+### Tech
 - C# ASP.NET CORE
 - Adrunio/ESP32 based microcontroler for sensor/system control.
 
